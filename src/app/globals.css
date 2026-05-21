@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fafafa;
+  --foreground: #171717;
+  --muted: #737373;
+  --border: #e5e5e5;
+  --card: #ffffff;
+  --accent: #171717;
+  --accent-hover: #404040;
+  --formula-bg: #f5f5f5;
+  --success: #16a34a;
+  --success-bg: #f0fdf4;
+  --warning: #ca8a04;
+  --warning-bg: #fefce8;
+  --info: #2563eb;
+  --info-bg: #eff6ff;
+  --exam: #7c3aed;
+  --exam-bg: #f5f3ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --muted: #a3a3a3;
+    --border: #262626;
+    --card: #141414;
+    --accent: #fafafa;
+    --accent-hover: #d4d4d4;
+    --formula-bg: #1a1a1a;
+    --success: #4ade80;
+    --success-bg: #052e16;
+    --warning: #facc15;
+    --warning-bg: #422006;
+    --info: #60a5fa;
+    --info-bg: #172554;
+    --exam: #a78bfa;
+    --exam-bg: #2e1065;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-result {
+  animation: fade-in-up 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+.animate-result-delay-1 {
+  animation-delay: 0.08s;
+}
+.animate-result-delay-2 {
+  animation-delay: 0.16s;
+}
+.animate-result-delay-3 {
+  animation-delay: 0.24s;
+}
+.animate-result-delay-4 {
+  animation-delay: 0.32s;
+}
+.animate-result-delay-5 {
+  animation-delay: 0.4s;
+}
+.animate-result-delay-6 {
+  animation-delay: 0.48s;
+}
+.animate-result-delay-7 {
+  animation-delay: 0.56s;
+}
+.animate-result-delay-8 {
+  animation-delay: 0.64s;
+}
+
+.animate-success-badge {
+  animation: scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-result,
+  .animate-success-badge {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
