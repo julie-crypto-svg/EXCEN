@@ -13,6 +13,18 @@ export interface ConseilExamen {
   gagnerTemps: string[];
 }
 
+/** Bloc coloré d'une formule décomposée */
+export interface FormulaBlock {
+  /** Fragment affiché (ex. EQUIV(A2;B2:B50;0)) */
+  expression: string;
+  /** Rôle court optionnel (ex. « Position ») */
+  role?: string;
+  /** Explication pédagogique du bloc */
+  explanation: string;
+  /** Index 0–4 pour la couleur discrète */
+  colorIndex: number;
+}
+
 export interface AnalysisResult {
   categorie: string;
   titre: string;
@@ -27,6 +39,10 @@ export interface AnalysisResult {
   explication: string;
   formule: string;
   pourquoiFormule: string;
+  /** Section « Comprendre la logique » — paragraphes liés au tableau */
+  logiqueComprehension: string[];
+  /** Décomposition visuelle de la formule */
+  decompositionFormule: FormulaBlock[];
   erreursFrequentes: FrequentError[];
   etapes: string[];
   conseilExamen: ConseilExamen;

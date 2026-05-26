@@ -109,9 +109,9 @@ export function ImageUpload({
           <p className="text-base font-medium text-[var(--foreground)]">
             Photo ou capture de votre feuille Excel
           </p>
-          <p className="mx-auto mt-2 max-w-[280px] text-sm leading-snug text-[var(--muted)]">
-            Le tableau doit être lisible : colonnes (A, B, C…), cellules et
-            données. La barre de formule en haut est un plus.
+          <p className="mx-auto mt-2 max-w-[300px] text-sm leading-relaxed text-[var(--muted)]">
+            Colonnes, en-têtes et cellules visibles — EXCEN relie chaque bloc de
+            formule à votre tableau.
           </p>
           <p className="mt-3 text-xs text-[var(--muted)]">
             Glisser-déposer · clic pour parcourir · max 5 Mo

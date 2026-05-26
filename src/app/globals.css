@@ -32,6 +32,15 @@
 
   --exam: #6d28d9;
   --exam-bg: #f5f3ff;
+
+  /* Segmented control (modes) */
+  --segment-track: #f0ece6;
+  --segment-border: rgba(26, 26, 26, 0.08);
+  --segment-active: #5b21b6;
+  --segment-active-hover: #4c1d95;
+  --segment-inactive: #5c5c5c;
+  --segment-shadow: 0 1px 2px rgba(91, 33, 182, 0.18),
+    0 4px 14px rgba(91, 33, 182, 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -55,6 +64,98 @@
     --info-bg: #2e1065;
     --exam: #a78bfa;
     --exam-bg: #2e1065;
+    --segment-track: #1a1a1a;
+    --segment-border: rgba(255, 255, 255, 0.08);
+    --segment-active: #7c3aed;
+    --segment-active-hover: #8b5cf6;
+    --segment-inactive: #a3a3a3;
+    --segment-shadow: 0 1px 2px rgba(0, 0, 0, 0.35),
+      0 4px 12px rgba(124, 58, 237, 0.2);
+  }
+}
+
+/* ─── Segmented control (Linear / Apple style) ───────────────── */
+.mode-segment {
+  position: relative;
+  display: flex;
+  width: 100%;
+  padding: 3px;
+  border-radius: 9999px;
+  background: var(--segment-track);
+  border: 1px solid var(--segment-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.mode-segment-indicator {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 4.5px);
+  border-radius: 9999px;
+  background: var(--segment-active);
+  box-shadow: var(--segment-shadow);
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.2s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mode-segment-indicator[data-position="right"] {
+  transform: translateX(calc(100% + 3px));
+}
+
+.mode-segment-option {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 9999px;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--segment-inactive);
+  cursor: pointer;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mode-segment-option:hover:not(:disabled):not([data-active="true"]) {
+  color: var(--foreground);
+  background: rgba(91, 33, 182, 0.05);
+}
+
+.mode-segment-option[data-active="true"] {
+  color: #fff;
+}
+
+.mode-segment-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.mode-segment-option svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.mode-segment-option[data-active="true"] svg {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mode-segment-indicator {
+    transition: transform 0.01s linear;
   }
 }
 
@@ -203,6 +304,65 @@ h2,
 .animate-result-delay-6 { animation-delay: 0.48s; }
 .animate-result-delay-7 { animation-delay: 0.56s; }
 .animate-result-delay-8 { animation-delay: 0.64s; }
+
+/* ─── Blocs de formule décomposée ───────────────────────────── */
+.formula-block-0 {
+  background: rgba(109, 40, 217, 0.1);
+  border-color: rgba(109, 40, 217, 0.28);
+  color: #5b21b6;
+}
+
+.formula-block-1 {
+  background: rgba(37, 99, 235, 0.08);
+  border-color: rgba(37, 99, 235, 0.22);
+  color: #1d4ed8;
+}
+
+.formula-block-2 {
+  background: rgba(180, 83, 9, 0.08);
+  border-color: rgba(180, 83, 9, 0.22);
+  color: #b45309;
+}
+
+.formula-block-3 {
+  background: rgba(13, 148, 136, 0.08);
+  border-color: rgba(13, 148, 136, 0.22);
+  color: #0f766e;
+}
+
+.formula-block-4 {
+  background: rgba(190, 24, 93, 0.06);
+  border-color: rgba(190, 24, 93, 0.18);
+  color: #9d174d;
+}
+
+@media (prefers-color-scheme: dark) {
+  .formula-block-0 {
+    background: rgba(167, 139, 250, 0.15);
+    border-color: rgba(167, 139, 250, 0.35);
+    color: #c4b5fd;
+  }
+  .formula-block-1 {
+    background: rgba(96, 165, 250, 0.12);
+    border-color: rgba(96, 165, 250, 0.3);
+    color: #93c5fd;
+  }
+  .formula-block-2 {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.28);
+    color: #fcd34d;
+  }
+  .formula-block-3 {
+    background: rgba(45, 212, 191, 0.1);
+    border-color: rgba(45, 212, 191, 0.28);
+    color: #5eead4;
+  }
+  .formula-block-4 {
+    background: rgba(244, 114, 182, 0.1);
+    border-color: rgba(244, 114, 182, 0.28);
+    color: #f9a8d4;
+  }
+}
 
 .animate-success-badge {
   animation: scale-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;

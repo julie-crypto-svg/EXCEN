@@ -12,16 +12,16 @@ export const CONFIDENCE_META: Record<
   }
 > = {
   high: {
-    label: "Formule très probable",
-    description: "L'exercice correspond clairement à ce type de formule.",
+    label: "Logique bien identifiée",
+    description: "L'exercice correspond clairement à ce type de raisonnement.",
     dotClass: "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]",
     bgClass: "bg-emerald-500/8",
     textClass: "text-emerald-700 dark:text-emerald-400",
     borderClass: "border-emerald-500/25",
   },
   medium: {
-    label: "Exercice ambigu",
-    description: "Plusieurs interprétations possibles — vérifiez la formule.",
+    label: "Contexte à préciser",
+    description: "Plusieurs lectures possibles — recoupez avec votre énoncé.",
     dotClass: "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.45)]",
     bgClass: "bg-amber-500/8",
     textClass: "text-amber-700 dark:text-amber-400",

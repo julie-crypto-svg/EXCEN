@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ConfidenceBadge } from "@/components/ConfidenceBadge";
+import { FormulaDecomposition } from "@/components/FormulaDecomposition";
 import type { AnalysisMode, AnalysisResult } from "@/lib/types";
 
 interface ResultsProps {
@@ -22,7 +23,7 @@ function CopyButton({ text }: { text: string }) {
     <button
       type="button"
       onClick={copy}
-      className="shrink-0 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition-colors hover:text-[var(--foreground)]"
+      className="shrink-0 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-medium text-[var(--muted)] transition-colors hover:border-[var(--accent-muted)] hover:text-[var(--foreground)]"
     >
       {copied ? "Copié" : "Copier"}
     </button>
@@ -31,30 +32,37 @@ function CopyButton({ text }: { text: string }) {
 
 function FormulaBar({
   data,
-  large = false,
   delayClass = "",
+  minimal = false,
 }: {
   data: AnalysisResult;
-  large?: boolean;
   delayClass?: string;
+  minimal?: boolean;
 }) {
   return (
     <div
-      className={`animate-result ${delayClass} flex items-center justify-between gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-4 sm:px-5`}
+      className={`animate-result ${delayClass} rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-4 sm:px-5`}
     >
-      <div className="min-w-0">
-        <p className="text-[10px] font-medium uppercase tracking-wider text-[var(--muted)]">
-          {data.categorie} · cellule {data.celluleCible}
-        </p>
-        <pre
-          className={`mt-1 overflow-x-auto font-mono font-semibold text-[var(--foreground)] ${
-            large ? "text-xl sm:text-2xl" : "text-base sm:text-lg"
-          }`}
-        >
-          {data.formule}
-        </pre>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--muted)]">
+            {data.categorie} · {data.celluleCible}
+          </p>
+          {!minimal && (
+            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
+              {data.resume}
+            </p>
+          )}
+          <pre
+            className={`overflow-x-auto rounded-xl bg-[var(--formula-bg)] px-3 py-3 font-mono font-semibold leading-relaxed text-[var(--foreground)] ${
+              minimal ? "mt-2 text-lg sm:text-xl" : "mt-3 text-base sm:text-lg"
+            }`}
+          >
+            {data.formule}
+          </pre>
+        </div>
+        <CopyButton text={data.formule} />
       </div>
-      <CopyButton text={data.formule} />
     </div>
   );
 }
@@ -68,18 +76,20 @@ function Section({
   title: string;
   children: React.ReactNode;
   delayClass?: string;
-  variant?: "default" | "warning";
+  variant?: "default" | "logic" | "warning";
 }) {
   const border =
-    variant === "warning"
-      ? "border-[var(--warning)]/25 bg-[var(--warning-bg)]/20"
-      : "border-[var(--border)] bg-[var(--card)]";
+    variant === "logic"
+      ? "border-[var(--accent)]/18 bg-[var(--formula-bg)]/40"
+      : variant === "warning"
+        ? "border-[var(--warning)]/20 bg-[var(--warning-bg)]/15"
+        : "border-[var(--border)] bg-[var(--card)]";
 
   return (
     <section
-      className={`animate-result ${delayClass} rounded-2xl border ${border} px-4 py-4 sm:px-5 sm:py-5`}
+      className={`animate-result ${delayClass} rounded-2xl border ${border} px-4 py-5 sm:px-5`}
     >
-      <h2 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
+      <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-[var(--muted)]">
         {title}
       </h2>
       {children}
@@ -87,80 +97,98 @@ function Section({
   );
 }
 
-function mergePieges(data: AnalysisResult): { titre: string; hint: string }[] {
-  const fromErrors = data.erreursFrequentes.map((e) => ({
-    titre: e.titre,
-    hint: e.description,
-  }));
-  const fromExam = data.conseilExamen.piegesClassiques.map((p) => ({
-    titre: "En contrôle",
-    hint: p,
-  }));
-  return [...fromErrors, ...fromExam].slice(0, 5);
-}
-
-function UrgenceResults({ data }: { data: AnalysisResult }) {
+function LogicBlock({ paragraphs }: { paragraphs: string[] }) {
   return (
-    <div className="space-y-4">
-      <FormulaBar data={data} large delayClass="animate-result-delay-1" />
-      <p className="animate-result animate-result-delay-2 px-1 text-center text-sm leading-snug text-[var(--foreground)] sm:text-base">
-        {data.explicationCourte}
-      </p>
-      {data.confiance === "low" && (
-        <p className="animate-result animate-result-delay-3 text-center text-xs text-[var(--muted)]">
-          Image floue — vérifiez avec votre énoncé.
-        </p>
-      )}
-    </div>
+    <ul className="space-y-4">
+      {paragraphs.map((para, i) => (
+        <li
+          key={i}
+          className="text-[15px] leading-relaxed text-[var(--foreground)] sm:text-base"
+        >
+          {para}
+        </li>
+      ))}
+    </ul>
   );
 }
 
-function ApprentissageResults({ data }: { data: AnalysisResult }) {
-  const pieges = mergePieges(data);
+function ExamErrors({ data }: { data: AnalysisResult }) {
+  const items = [
+    ...data.erreursFrequentes.map((e) => ({
+      titre: e.titre,
+      hint: e.description,
+    })),
+    ...data.conseilExamen.piegesClassiques.map((p) => ({
+      titre: "À éviter",
+      hint: p,
+    })),
+  ];
+
+  if (items.length === 0) return null;
 
   return (
-    <div className="space-y-4">
-      <FormulaBar data={data} delayClass="animate-result-delay-1" />
+    <ul className="space-y-3">
+      {items.map((item, i) => (
+        <li
+          key={i}
+          className="rounded-xl border border-[var(--border)]/80 bg-[var(--card)] px-4 py-3"
+        >
+          <p className="text-sm font-medium text-[var(--foreground)]">
+            {item.titre}
+          </p>
+          <p className="mt-1 text-sm leading-relaxed text-[var(--muted)]">
+            {item.hint}
+          </p>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
-      <Section title="Pourquoi cette formule" delayClass="animate-result-delay-2">
-        <p className="text-sm leading-snug text-[var(--foreground)]">
+/** Réponse rapide : formule + décomposition + confiance uniquement */
+function QuickResults({ data }: { data: AnalysisResult }) {
+  return (
+    <FormulaDecomposition
+      blocks={data.decompositionFormule}
+      fullFormula={data.formule}
+      delayClass="animate-result-delay-2"
+      compact
+      hideFullFormulaBanner
+    />
+  );
+}
+
+/** Explication complète */
+function FullResults({ data }: { data: AnalysisResult }) {
+  return (
+    <div className="space-y-4">
+      <Section
+        title="Comprendre la logique"
+        variant="logic"
+        delayClass="animate-result-delay-2"
+      >
+        <LogicBlock paragraphs={data.logiqueComprehension} />
+      </Section>
+
+      <Section title="Décomposition de la formule" delayClass="animate-result-delay-3">
+        <FormulaDecomposition
+          blocks={data.decompositionFormule}
+          fullFormula={data.formule}
+        />
+      </Section>
+
+      <Section title="Pourquoi cette structure" delayClass="animate-result-delay-4">
+        <p className="text-[15px] leading-relaxed text-[var(--foreground)] sm:text-base">
           {data.pourquoiFormule}
         </p>
       </Section>
 
-      <Section title="Méthode étape par étape" delayClass="animate-result-delay-3">
-        <ol className="space-y-2.5">
-          {data.etapes.map((etape, i) => (
-            <li key={i} className="flex gap-3 text-sm leading-snug">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--foreground)] text-[11px] font-bold text-[var(--background)]">
-                {i + 1}
-              </span>
-              <span className="pt-0.5 text-[var(--foreground)]">{etape}</span>
-            </li>
-          ))}
-        </ol>
-      </Section>
-
       <Section
-        title="Pièges fréquents"
+        title="Erreurs fréquentes en examen"
         variant="warning"
-        delayClass="animate-result-delay-4"
+        delayClass="animate-result-delay-5"
       >
-        <ul className="space-y-2.5">
-          {pieges.map((p, i) => (
-            <li
-              key={i}
-              className="rounded-lg border border-[var(--border)]/80 bg-[var(--card)] px-3 py-2.5"
-            >
-              <p className="text-sm font-medium text-[var(--foreground)]">
-                {p.titre}
-              </p>
-              <p className="mt-0.5 text-xs leading-snug text-[var(--muted)]">
-                {p.hint}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <ExamErrors data={data} />
       </Section>
     </div>
   );
@@ -170,15 +198,15 @@ function ContextBanner({ data }: { data: AnalysisResult }) {
   if (!data.contexteEnonce && !data.celluleUtilisateur) return null;
 
   return (
-    <div className="animate-result animate-result-delay-1 rounded-xl border border-[var(--border)] bg-[var(--formula-bg)]/40 px-4 py-3">
+    <div className="animate-result rounded-xl border border-[var(--border)] bg-[var(--formula-bg)]/30 px-4 py-3">
       {data.contexteEnonce && (
-        <p className="text-xs leading-snug text-[var(--muted)]">
+        <p className="text-sm leading-relaxed text-[var(--muted)]">
           {data.contexteEnonce}
         </p>
       )}
       {data.celluleUtilisateur && (
-        <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wider text-[var(--foreground)]">
-          Cellule indiquée : {data.celluleCible}
+        <p className="mt-2 text-xs text-[var(--accent)]">
+          Cellule à remplir : {data.celluleCible}
         </p>
       )}
     </div>
@@ -186,23 +214,43 @@ function ContextBanner({ data }: { data: AnalysisResult }) {
 }
 
 export function Results({ data, mode }: ResultsProps) {
-  const isUrgence = mode === "urgence";
+  const isQuick = mode === "urgence";
 
   return (
     <div className="mt-8 space-y-4">
-      <div className="animate-result flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-center text-xs font-medium text-[var(--success)] sm:text-left">
-          ✓ Prêt
-        </p>
-        <ConfidenceBadge level={data.confiance} className="justify-center sm:ml-auto" />
+      <div
+        className={`animate-result flex ${
+          isQuick ? "justify-center" : "flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"
+        }`}
+      >
+        {!isQuick && (
+          <div>
+            <p className="text-xs text-[var(--success)]">C&apos;est débloqué</p>
+            <h3 className="mt-1 font-serif text-xl tracking-tight text-[var(--foreground)] sm:text-2xl">
+              {data.titre}
+            </h3>
+          </div>
+        )}
+        <ConfidenceBadge
+          level={data.confiance}
+          className={isQuick ? "w-full justify-center" : "justify-start sm:ml-auto sm:justify-end"}
+        />
       </div>
 
-      <ContextBanner data={data} />
+      {!isQuick && <ContextBanner data={data} />}
 
-      {isUrgence ? (
-        <UrgenceResults data={data} />
-      ) : (
-        <ApprentissageResults data={data} />
+      <FormulaBar
+        data={data}
+        minimal={isQuick}
+        delayClass="animate-result-delay-1"
+      />
+
+      {isQuick ? <QuickResults data={data} /> : <FullResults data={data} />}
+
+      {isQuick && data.confiance === "low" && (
+        <p className="text-center text-xs text-[var(--muted)]">
+          Photo un peu floue — passez en explication complète avec votre énoncé.
+        </p>
       )}
     </div>
   );

@@ -38,7 +38,7 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto min-h-screen max-w-xl px-5 py-10 sm:px-8 sm:py-14">
+    <main className="mx-auto min-h-screen max-w-2xl px-5 py-10 sm:px-8 sm:py-14">
       <header className="mb-8 text-center">
         <span className="mb-4 inline-block text-[10px] font-medium uppercase tracking-[0.25em] text-[var(--muted)]">
           Démo
@@ -49,9 +49,9 @@ export default function Home() {
         <h1 className="text-4xl font-semibold tracking-[0.2em] text-[var(--foreground)] sm:text-5xl">
           EXCEN
         </h1>
-        <p className="mx-auto mt-3 max-w-sm text-sm leading-snug text-[var(--muted)]">
-          Envoyez une photo de votre feuille Excel, puis l&apos;énoncé — on vous
-          guide vers la bonne formule.
+        <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-[var(--muted)]">
+          Uploadez votre tableau, décrivez l&apos;exercice — EXCEN décompose la
+          formule et traduit sa logique en langage clair.
         </p>
       </header>
 
@@ -79,9 +79,6 @@ export default function Home() {
       />
 
       <div className="mt-6">
-        <p className="mb-3 text-xs font-medium text-[var(--foreground)]">
-          3. Mode d&apos;affichage
-        </p>
         <ModeSelector mode={mode} onChange={setMode} disabled={loading} />
       </div>
 

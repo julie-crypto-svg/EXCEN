@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EXCEN — Exercices Excel",
+  title: "EXCEN — Comprendre la logique Excel",
   description:
-    "Uploadez une capture d'exercice Excel et obtenez la formule et la méthode.",
+    "Décomposez les formules Excel (INDEX, EQUIV, RECHERCHEV, SI…) et visualisez le raisonnement dans le contexte de votre tableau.",
 };
 
 export default function RootLayout({

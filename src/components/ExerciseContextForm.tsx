@@ -31,7 +31,7 @@ export function ExerciseContextForm({
           onChange={(e) => onEnonceChange(e.target.value)}
           disabled={disabled}
           rows={3}
-          placeholder="Ex. Calculez le total des ventes trimestrielles pour chaque vendeur en colonne E…"
+          placeholder="Ex. Retrouvez le prix du produit en colonne D à partir du code en A, avec INDEX et EQUIV…"
           className="w-full resize-none rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm leading-snug text-[var(--foreground)] placeholder:text-[var(--muted)]/70 focus:border-[var(--foreground)]/30 focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]/10 disabled:opacity-50"
         />
       </div>

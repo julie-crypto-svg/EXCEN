@@ -1,5 +1,5 @@
 import { pickRandomConfidence } from "@/lib/confidence";
-import type { AnalysisResult } from "@/lib/types";
+import type { AnalysisResult, FormulaBlock } from "@/lib/types";
 import { FAKE_ANALYSES, type FakeAnalysisTemplate } from "@/lib/fake-response";
 
 export interface AnalysisContext {
@@ -38,27 +38,52 @@ function excerptEnonce(enonce: string, max = 72): string {
 
 function detectScenarioIndex(enonce: string): number | null {
   const t = enonce.toLowerCase();
+
+  if (
+    /estna|#n\/a|code\s*inconnu|erreur|inconnu/.test(t) &&
+    /recherchev|recherche\s*v/.test(t)
+  ) {
+    return FAKE_ANALYSES.findIndex((s) => s.categorie === "SI + RECHERCHEV");
+  }
+  if (
+    /2d|deux\s*équiv|double\s*équiv|matrice|grille|mois|vendeur.*colonne|ligne\s*et\s*colonne/.test(
+      t,
+    ) ||
+    (/index/.test(t) && /équiv|equiv/.test(t) && /colonne|mois|en-tête|entete/.test(t))
+  ) {
+    return FAKE_ANALYSES.findIndex((s) => s.categorie === "INDEX + EQUIV (2D)");
+  }
+  if (/imbriqu|plusieurs\s*seuil|mention|excellent|admis|cascade/.test(t)) {
+    return FAKE_ANALYSES.findIndex((s) => s.categorie === "SI imbriqués");
+  }
   if (/recherchev|recherche\s*v|code\s*produit|prix\s*unitaire/.test(t)) {
     return FAKE_ANALYSES.findIndex((s) => s.categorie === "RECHERCHEV");
   }
   if (/index|équiv|equiv/.test(t)) {
-    return FAKE_ANALYSES.findIndex((s) => s.categorie === "INDEX / EQUIV");
+    return FAKE_ANALYSES.findIndex((s) => s.categorie === "INDEX + EQUIV");
   }
-  if (/nb\.?si|compter|nombre\s+de|combien/.test(t)) {
-    return FAKE_ANALYSES.findIndex((s) => s.categorie === "NB.SI");
-  }
-  if (/\bsi\b|condition|oui|non|objectif|bonus|dépasse/.test(t)) {
-    return FAKE_ANALYSES.findIndex((s) => s.categorie === "SI");
-  }
-  if (/somme|total|addition|janvier|février|mars|trimestre/.test(t)) {
-    return FAKE_ANALYSES.findIndex((s) => s.categorie === "SOMME");
+  if (/\bsi\b|condition|oui|non|objectif|bonus|dépasse|seuil/.test(t)) {
+    return FAKE_ANALYSES.findIndex((s) => s.categorie === "SI imbriqués");
   }
   return null;
 }
 
 function buildContextPhrase(excerpt: string, categorie: string): string {
   if (!excerpt) return "";
-  return `Votre énoncé évoque un exercice type « ${categorie} » — ${excerpt}`;
+  return `D’après ce que vous décrivez (${categorie.toLowerCase()}) : « ${excerpt} »`;
+}
+
+function adaptBlocks(
+  blocks: FormulaBlock[],
+  defaultCell: string,
+  userCell: string | null,
+): FormulaBlock[] {
+  if (!userCell) return blocks;
+  return blocks.map((b) => ({
+    ...b,
+    expression: adaptToCellule(b.expression, defaultCell, userCell),
+    explanation: adaptToCellule(b.explanation, defaultCell, userCell),
+  }));
 }
 
 function personalizeCopy(
@@ -73,21 +98,13 @@ function personalizeCopy(
 
   const contexteEnonce = buildContextPhrase(excerpt, base.categorie);
 
-  const explicationCourte = excerpt
-    ? `${adapt(base.explicationCourte)} — aligné avec : « ${excerpt} »`
-    : adapt(base.explicationCourte);
+  const explicationCourte = adapt(base.explicationCourte);
 
   const pourquoiFormule = excerpt
-    ? `${adapt(base.pourquoiFormule)} Cela répond à l'énoncé.`
+    ? `${adapt(base.pourquoiFormule)} Ça colle avec l’exercice que vous avez décrit.`
     : adapt(base.pourquoiFormule);
 
-  const etapes = base.etapes.map((e, i) => {
-    const step = adapt(e);
-    if (i === 0 && excerpt && userCell) {
-      return `${step} (énoncé + cellule ${targetCell})`;
-    }
-    return step;
-  });
+  const logiqueComprehension = base.logiqueComprehension.map((p) => adapt(p));
 
   return {
     ...base,
@@ -95,11 +112,12 @@ function personalizeCopy(
     formule: adapt(base.formule),
     explicationCourte,
     pourquoiFormule,
-    etapes,
-    erreursFrequentes: base.erreursFrequentes.map((err) => ({
-      ...err,
-      description: adapt(err.description),
-    })),
+    logiqueComprehension,
+    decompositionFormule: adaptBlocks(
+      base.decompositionFormule,
+      defaultCell,
+      userCell,
+    ),
     contexteEnonce: contexteEnonce || undefined,
     enonceUtilise: Boolean(excerpt),
     celluleUtilisateur: Boolean(userCell),
